@@ -25,11 +25,9 @@ export default {
     const textarea = document.querySelector("#code");
 
     this.editor = CodeMirror.fromTextArea(textarea, {
-      mode: "text/x-c++src",
+      mode: "text/xml",
       lineWrapping: true,
-      // mode: "javascript",
       theme: this.theme,
-      // theme: "material-palenight",
       tabSize: 2,
       lineNumbers: true,
       indentWithTabs: true,
@@ -42,6 +40,8 @@ export default {
       }
       this.echo = true;
     });
+
+    this.editor.setValue(this.files[this.active].content);
   },
 
   methods: {

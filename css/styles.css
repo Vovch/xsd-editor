@@ -4,9 +4,13 @@ html {
   overflow: hidden;
 }
 
+.overflow {
+  overflow: auto;
+}
+
 #file-explorer {
   background-color: #090b10;
-  height: calc(100vh - 56px - 21px);
+  /*height: calc(100vh - 56px - 21px);*/
   width: 240px;
   flex: 240px 0 0;
 }

@@ -13,7 +13,7 @@ export default {
       <small class="px-2">File Explorer</small>
       <i class="las la-file-medical float-end me-2" @click="newFile"></i>
 
-      <input type="file" @change="uploadFile" accept="text/plain|.c|.cpp|.java|.html|.py|.js" multiple>
+      <input type="file" @change="uploadFile" accept="text/plain|.xml|.xsd" multiple>
       <i class="las la-file-upload float-end me-2"></i>
 
       <hr class="mb-0"/>
@@ -131,7 +131,7 @@ export default {
               this.$emit("addFile", { name: filename, content: content });
             };
 
-            reader.readAsText(file);
+            reader.readAsText(file, 'Windows-1251');
           } catch (error) {
             console.log(error);
           }

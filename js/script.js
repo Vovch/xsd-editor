@@ -2,59 +2,43 @@ import Navbar from "./src/components/Navbar.js";
 import Explorer from "./src/components/Explorer.js";
 import Editor from "./src/components/Editor.js";
 import Status from "./src/components/Status.js";
+import GraphicEditor from "./src/components/GraphicEditor.js";
+import {testText} from "./testText.js";
+import "./src/components/XsdList.js"
 
 var app = new Vue({
   el: "#app",
 
   data() {
     return {
-      socket: null,
       connected: false,
-      files: [{ name: "01 Doubly Linked List.cpp", content: "" }],
+      files: [{ name: "test.xml", content: testText }],
       active: 0,
-      mode: "text/x-c++src",
-      //
+      mode: "xml",
       mirror: false,
       cursor: { ch: 0, line: 0 },
       theme: "material-ocean",
-      //
       refresh: false,
+      isGraphic: false,
     };
   },
 
   template: `
     <div>
-        <Navbar :mirror="mirror" @toggle="mirror = !mirror" :connected="connected"/>
-        <div class="d-flex">
-            <Explorer :files="files" @addFile="addFile" @removeFile="removeFile" @openFile="openFile" :active="active"/>
-            <Editor :files="files" @openFile="openFile" :active="active" @edit="edit" :mode="mode" @cursor="setCursor" :refresh="refresh" :theme="theme"/>
+        <div v-if="!isGraphic">
+          <Navbar :mirror="mirror" @toggle="mirror = !mirror" :connected="connected" @setGraphic="isGraphic = true"/>
+          <div class="d-flex">
+              <Explorer :files="files" @addFile="addFile" @removeFile="removeFile" @openFile="openFile" :active="active"/>
+              <Editor :files="files" @openFile="openFile" :active="active" @edit="edit" :mode="mode" @cursor="setCursor" :refresh="refresh" :theme="theme"/>
+          </div>
+          <Status :mode="mode" :active="active" :files="files" :cursor="cursor" @setFont="setFont" @setTheme="setTheme"/>
         </div>
-        <Status :mode="mode" :active="active" :files="files" :cursor="cursor" @setFont="setFont" @setTheme="setTheme"/>
+        <div v-if="isGraphic">
+            <GraphicEditor :active="active" :files="files" @setGraphic="isGraphic = false"/>
+        </div>
     </div>
   `,
-  /* SOCKET */
-  created() {
-    this.socket = io("https://code-blackboard.herokuapp.com/");
-    // this.socket = io("http://localhost:3000/");
-
-    this.socket.on("connect", () => {
-      this.connected = true;
-      console.log(this.socket.id);
-    });
-
-    this.socket.on("disconnect", () => {
-      console.log(this.socket.id);
-    });
-
-    this.socket.on("broadcast", (arg) => {
-      if (this.mirror) {
-        this.active = arg.active;
-        this.mode = arg.mode;
-      }
-
-      this.files = [...arg.files];
-    });
-  },
+  created() {},
 
   mounted() {
     this.setMode();
@@ -63,27 +47,19 @@ var app = new Vue({
   methods: {
     addFile({ name, content }) {
       this.files = [...this.files, { name: name, content: content }];
-      /* SOCKET */
-      this.emit();
     },
 
     removeFile(payload) {
       this.files.splice(payload, 1);
-      /* SOCKET */
-      this.emit();
     },
 
     openFile(payload) {
       this.active = payload;
       this.setMode();
-      /* SOCKET */
-      this.emit();
     },
 
     edit(payload) {
       this.files[this.active].content = payload;
-      /* SOCKET */
-      this.emit();
     },
 
     setMode() {
@@ -126,6 +102,7 @@ var app = new Vue({
               break;
 
             case "xml":
+            case "xsd":
               this.mode = "xml";
               break;
 
@@ -150,15 +127,6 @@ var app = new Vue({
       this.cursor = { ...payload };
     },
 
-    emit() {
-      this.socket.emit("emit", {
-        files: this.files,
-        active: this.active,
-        mode: this.mode,
-        cursor: this.cursor,
-      });
-    },
-
     setFont() {
       this.refresh = !this.refresh;
     },
@@ -173,5 +141,6 @@ var app = new Vue({
     Explorer,
     Editor,
     Status,
+    GraphicEditor,
   },
 });
